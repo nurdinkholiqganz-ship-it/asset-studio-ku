@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Farm Asset Studio</title>
+    <style>
+        :root {
+            --bg-color: #1a1a24;
+            --panel-color: #242432;
+            --accent-color: #ff7b54;
+            --text-color: #e2e8f0;
+            --border-color: #3f3f56;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            color: var(--accent-color);
+            font-size: 2rem;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px #000;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+            }
+        }
+
+        .panel {
+            background-color: var(--panel-color);
+            border: 3px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            flex: 1;
+        }
+
+        .controls-panel {
+            max-width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .controls-panel {
+                max-width: 350px;
+            }
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 5px;
+            color: var(--accent-color);
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: none;
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            background-color: var(--bg-color);
+            border: 2px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 4px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #e0633b;
+        }
+
+        .grid-assets {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .asset-card {
+            background-color: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .asset-preview {
+            width: 64px;
+            height: 64px;
+            background-image: linear-gradient(45deg, #2a2a3a 25%, transparent 25%), 
+                              linear-gradient(-45deg, #2a2a3a 25%, transparent 25%), 
+                              linear-gradient(45deg, transparent 75%, #2a2a3a 75%), 
+                              linear-gradient(-45deg, transparent 75%, #2a2a3a 75%);
+            background-size: 16px 16px;
+            background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .asset-name {
+            font-size: 0.75rem;
+            word-break: break-word;
+        }
+
+        /* Playground Mini-Game Styles */
+        .playground-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            max-width: 300px;
+            margin: 0 auto 15px auto;
+        }
+
+        .plot {
+            aspect-ratio: 1;
+            background-color: #553a26;
+            border: 2px solid #3d281a;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            image-rendering: pixelated;
+        }
+
+        .tool-select {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .tool-btn {
+            padding: 5px 10px;
+            background-color: var(--bg-color);
+            border: 2px solid var(--border-color);
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
+
+        .tool-btn.active {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .watermark {
+            font-size: 0.75rem;
+            color: #666;
+            text-align: right;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🌱 Retro Farm Asset Studio</h1>
+        <p>Kustomisasi & Ekspor Aset Tanaman Siap Pakai untuk GDevelop</p>
+    </header>
+
+    <div class="container">
+        <div class="panel controls-panel">
+            <h2>Kustomisasi Warna</h2>
+            
+            <div class="control-group">
+                <label>Warna Tanah Kering:</label>
+                <input type="color" id="colorDry" value="#66462c">
+            </div>
+            
+            <div class="control-group">
+                <label>Warna Tanah Basah:</label>
+                <input type="color" id="colorWet" value="#3d281a">
+            </div>
+
+            <div class="control-group">
+                <label>Warna Daun/Batang Tanaman:</label>
+                <input type="color" id="colorStem" value="#38733c">
+            </div>
+
+            <div class="control-group">
+                <label>Warna Buah (Fase Matang):</label>
+                <input type="color" id="colorFruit" value="#d95763">
+            </div>
+
+            <div class="control-group">
+                <label>Resolusi Ekspor PNG:</label>
+                <select id="exportSize">
+                    <option value="32">32 x 32 px (Pure Retro)</option>
+                    <option value="64" selected>64 x 64 px (Rekomendasi)</option>
+                    <option value="128">128 x 128 px (Smooth)</option>
+                </select>
+            </div>
+
+            <button class="btn" id="btnExportAll">Unduh Semua Aset (.PNG)</button>
+            
+            <div class="watermark">by Abdul Hamid</div>
+        </div>
+
+        <div class="panel">
+            <h2>Daftar Sprite Generator</h2>
+            <div class="grid-assets" id="assetsGrid">
+                </div>
+
+            <h2>Uji Coba Logika Waktu (Playground)</h2>
+            <p style="font-size:0.85rem; margin-bottom:10px; text-align:center;">
+                Simulasi sistem pertumbuhan petak tanah seperti tutorial GDevelop.
+            </p>
+            
+            <div class="tool-select">
+                <button class="tool-btn active" data-tool="hoe">🪓 Cangkul</button>
+                <button class="tool-btn" data-tool="water">💧 Siram</button>
+                <button class="tool-btn" data-tool="seed">🌱 Tanam Bibit</button>
+                <button class="tool-btn" data-tool="harvest">🧺 Panen</button>
+            </div>
+
+            <div class="playground-grid" id="playGrid">
+                </div>
+            <p style="text-align: center; font-size: 0.8rem; color: #aaa;">
+                *Tanaman otomatis tumbuh setiap beberapa detik jika tanah dalam keadaan basah.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Data Sistem Aset dalam format SVG generator string
+        const assetsData = [
+            { id: 'soil_dry', name: 'Tanah Kering', type: 'soil' },
+            { id: 'soil_wet', name: 'Tanah Basah', type: 'soil' },
+            { id: 'crop_fase1', name: 'Tanaman Fase 1 (Bibit)', type: 'crop', stage: 1 },
+            { id: 'crop_fase2', name: 'Tanaman Fase 2 (Tunas)', type: 'crop', stage: 2 },
+            { id: 'crop_fase3', name: 'Tanaman Fase 3 (Tumbuh)', type: 'crop', stage: 3 },
+            { id: 'crop_fase4', name: 'Tanaman Fase 4 (Panen)', type: 'crop', stage: 4 },
+            { id: 'tool_hoe', name: 'Icon Cangkul', type: 'static' },
+            { id: 'item_coin', name: 'Icon Koin', type: 'static' }
+        ];
+
+        // State Playground
+        let currentTool = 'hoe';
+        const plotsData = Array(16).fill(null).map(() => ({ status: 'grass', stage: 0, watered: false }));
+
+        // Efek Suara Sintetis (Web Audio API) biar terasa game retro retro beneran
+        function playSound(type) {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            if (type === 'hoe') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(150, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.5, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                osc.start(); osc.stop(ctx.currentTime + 0.1);
+            } else if (type === 'water') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+                osc.start(); osc.stop(ctx.currentTime + 0.15);
+            } else if (type === 'plant') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, ctx.currentTime);
+                osc.frequency.setValueAtTime(450, ctx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                osc.start(); osc.stop(ctx.currentTime + 0.1);
+            } else if (type === 'harvest') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08); // E5
+                osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.16); // G5
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                osc.start(); osc.stop(ctx.currentTime + 0.3);
+            }
+        }
+
+        // Generate SVG secara dinamis berdasarkan warna input
+        function generateSVG(id, size = 64) {
+            const cDry = document.getElementById('colorDry').value;
+            const cWet = document.getElementById('colorWet').value;
+            const cStem = document.getElementById('colorStem').value;
+            const cFruit = document.getElementById('colorFruit').value;
+
+            let content = '';
+
+            if (id === 'soil_dry') {
+                content = `<rect width="64" height="64" fill="${cDry}"/>
+                           <rect x="8" y="12" width="8" height="8" fill="#ffffff" opacity="0.1"/>
+                           <rect x="40" y="36" width="12" height="6" fill="#000000" opacity="0.15"/>`;
+            } else if (id === 'soil_wet') {
+                content = `<rect width="64" height="64" fill="${cWet}"/>
+                           <rect x="4" y="8" width="12" height="6" fill="#ffffff" opacity="0.08"/>
+                           <rect x="32" y="40" width="16" height="8" fill="#000000" opacity="0.2"/>`;
+            } else if (id === 'crop_fase1') {
+                content = `<circle cx="32" cy="48" r="4" fill="#a0522d"/>
+                           <path d="M32,48 Q30,40 26,36 Q32,40 32,48" fill="${cStem}"/>`;
+            } else if (id === 'crop_fase2') {
+                content = `<path d="M32,52 Q32,32 24,24 Q30,34 32,52" fill="${cStem}"/>
+                           <path d="M32,52 Q36,36 44,30 Q36,40 32,52" fill="${cStem}"/>`;
+            } else if (id === 'crop_fase3') {
+                content = `<path d="M32,56 Q20,30 32,12 Q44,30 32,56" fill="${cStem}"/>
+                           <circle cx="32" cy="28" r="6" fill="${cFruit}" opacity="0.6"/>`;
+            } else if (id === 'crop_fase4') {
+                content = `<path d="M32,56 Q16,24 32,8 Q48,24 32,56" fill="${cStem}"/>
+                           <circle cx="32" cy="26" r="12" fill="${cFruit}"/>
+                           <circle cx="28" cy="22" r="3" fill="#ffffff" opacity="0.3"/>
+                           <path d="M32,14 Q32,8 36,6" stroke="${cStem}" stroke-width="3" fill="none"/>`;
+            } else if (id === 'tool_hoe') {
+                content = `<path d="M16,48 L48,16" stroke="#8b5a2b" stroke-width="6" stroke-linecap="round"/>
+                           <path d="M44,12 L54,22 L48,28 L38,18 Z" fill="#b0c4de"/>`;
+            } else if (id === 'item_coin') {
+                content = `<circle cx="32" cy="32" r="24" fill="#ffd700" stroke="#b8860b" stroke-width="4"/>
+                           <circle cx="32" cy="32" r="14" fill="#ffea00" stroke="#b8860b" stroke-width="2"/>`;
+            }
+
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="${size}" height="${size}">${content}</svg>`;
+        }
+
+        // Render Grid Aset Utama
+        function renderAssetsGrid() {
+            const grid = document.getElementById('assetsGrid');
+            grid.innerHTML = '';
+
+            assetsData.forEach(asset => {
+                const card = document.createElement('div');
+                card.className = 'asset-card';
+
+                const preview = document.createElement('div');
+                preview.className = 'asset-preview';
+                preview.innerHTML = generateSVG(asset.id, 48);
+
+                const name = document.createElement('span');
+                name.className = 'asset-name';
+                name.innerText = asset.name;
+
+                card.appendChild(preview);
+                card.appendChild(name);
+                grid.appendChild(card);
+            });
+        }
+
+        // Render Playground (Mini Game Kebun)
+        function renderPlayground() {
+            const container = document.getElementById('playGrid');
+            container.innerHTML = '';
+
+            plotsData.forEach((plot, index) => {
+                const element = document.createElement('div');
+                element.className = 'plot';
+
+                if (plot.status === 'grass') {
+                    element.style.backgroundColor = '#4c8c4a';
+                    element.style.border = '2px solid #3b6d39';
+                } else if (plot.status === 'tilled') {
+                    element.innerHTML = generateSVG(plot.watered ? 'soil_wet' : 'soil_dry', 60);
+                    
+                    // Kalau ada tanaman di petak ini
+                    if (plot.stage > 0) {
+                        const cropSvg = generateSVG(`crop_fase${plot.stage}`, 50);
+                        const cropWrapper = document.createElement('div');
+                        cropWrapper.style.position = 'absolute';
+                        cropWrapper.innerHTML = cropSvg;
+                        element.style.position = 'relative';
+                        element.appendChild(cropWrapper);
+                    }
+                }
+
+                // Aksi saat petak diklik pemain
+                element.onclick = () => handlePlotClick(index);
+                container.appendChild(element);
+            });
+        }
+
+        function handlePlotClick(index) {
+            const plot = plotsData[index];
+
+            if (currentTool === 'hoe' && plot.status === 'grass') {
+                plot.status = 'tilled';
+                playSound('hoe');
+            } else if (currentTool === 'water' && plot.status === 'tilled') {
+                plot.watered = true;
+                playSound('water');
+            } else if (currentTool === 'seed' && plot.status === 'tilled' && plot.stage === 0) {
+                plot.stage = 1;
+                playSound('plant');
+            } else if (currentTool === 'harvest' && plot.stage === 4) {
+                plot.stage = 0;
+                playSound('harvest');
+            }
+            renderPlayground();
+        }
+
+        // Logika Waktu Otomatis (Simulasi Engine GDevelop)
+        setInterval(() => {
+            let updated = false;
+            plotsData.forEach(plot => {
+                // Tanaman hanya tumbuh jika tanah basah & belum mencapai fase maksimal (4)
+                if (plot.status === 'tilled' && plot.watered && plot.stage > 0 && plot.stage < 4) {
+                    plot.stage += 1;
+                    plot.watered = false; // Tanah kering lagi setelah dipakai tumbuh (logika game mekanik)
+                    updated = true;
+                }
+            });
+            if (updated) renderPlayground();
+        }, 3000); // Tumbuh otomatis setiap 3 detik simulasi
+
+        // Setup Event Listener Tool Petak Kebun
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentTool = e.target.getAttribute('data-tool');
+            };
+        });
+
+        // Ekspor SVG ke File PNG Murni untuk GDevelop
+        function downloadPNG(svgString, fileName, size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Atur pixelated rendering biar tetap tajam gaya 8-bit
+            ctx.imageSmoothingEnabled = false;
+
+            const img = new Image();
+            const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, size, size);
+                URL.revokeObjectURL(url);
+                
+                const pngUrl = canvas.toDataURL('image/png');
+                const downloadLink = document.createElement('a');
+                downloadLink.href = pngUrl;
+                downloadLink.download = `${fileName}.png`;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            };
+            img.src = url;
+        }
+
+        // Tombol Download Massal All Aset
+        document.getElementById('btnExportAll').onclick = () => {
+            const size = parseInt(document.getElementById('exportSize').value);
+            assetsData.forEach(asset => {
+                const svgStr = generateSVG(asset.id, size);
+                downloadPNG(svgStr, asset.id, size);
+            });
+        };
+
+        // Real-time Update ketika warna diubah di panel kontrol
+        document.querySelectorAll('input[type="color"]').forEach(input => {
+            input.oninput = () => {
+                renderAssetsGrid();
+                renderPlayground();
+            };
+        });
+
+        // Jalankan render awal saat halaman dimuat
+        renderAssetsGrid();
+        renderPlayground();
+    </script>
+</body>
+</html>
